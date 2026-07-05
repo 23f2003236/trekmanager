@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<nav class="navbar navbar-expand-lg public-navbar">
+  <div class="container">
+    <a class="navbar-brand brand" href="{{ url_for('main.index') }}">
+      <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+      <span class="brand-text">{{ app_name }}</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#featured">Treks</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#how">How it works</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#stats">About</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item ms-lg-2"><a class="btn btn-brand" href="{{ url_for('auth.logout') }}">Sign out</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Sign in</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn btn-brand" href="{{ url_for('auth.register') }}">Get started</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{% include "partials/flashes.html" %}
+
+{% block public_content %}{% endblock %}
+
+<footer class="public-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <a class="navbar-brand brand text-white" href="{{ url_for('main.index') }}">
+          <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+          <span class="brand-text">{{ app_name }}</span>
+        </a>
+        <p class="footer-tagline mt-3">Premium guided treks across the Himalayas and beyond. Book with confidence.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Explore</h6>
+        <a href="{{ url_for('main.index') }}#featured">Featured treks</a>
+        <a href="{{ url_for('auth.register') }}">Become a guide</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Company</h6>
+        <a href="{{ url_for('main.index') }}#stats">About us</a>
+        <a href="{{ url_for('main.index') }}#how">How it works</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Stay in the loop</h6>
+        <p class="footer-tagline">Adventures, tips and route guides — no spam.</p>
+        <div class="footer-badges">
+          <span class="badge-soft"><i class="bi bi-shield-check"></i> Verified guides</span>
+          <span class="badge-soft"><i class="bi bi-lock"></i> Secure booking</span>
+        </div>
+      </div>
+    </div>
+    <hr class="footer-divider">
+    <div class="footer-bottom">
+      <span>© {{ current_year }} {{ app_name }}. All rights reserved.</span>
+      <span class="text-muted">Built with Flask · Bootstrap 5</span>
+    </div>
+  </div>
+</footer>
+{% endblock %}

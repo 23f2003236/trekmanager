@@ -1,0 +1,72 @@
+{% extends "partials/dashboard_layout.html" %}
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block page_subtitle %}Keep your account details up to date.{% endblock %}
+{% set active = 'profile' %}
+{% block sidebar_nav %}{% include "user/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="panel profile-panel">
+      <div class="avatar avatar-xl">{{ current_user.initials }}</div>
+      <h3>{{ current_user.full_name }}</h3>
+      <p class="cell-sub">@{{ current_user.username }}</p>
+      <span class="pill badge-status-open">Active trekker</span>
+      <ul class="kv-list mt-3 text-start">
+        <li><span><i class="bi bi-envelope"></i> Email</span><strong>{{ current_user.email }}</strong></li>
+        <li><span><i class="bi bi-telephone"></i> Phone</span><strong>{{ current_user.phone or '—' }}</strong></li>
+        <li><span><i class="bi bi-calendar3"></i> Joined</span><strong>{{ current_user.created_at|date_pretty }}</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="form-panel">
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-section">
+          <h3 class="form-section-title"><i class="bi bi-person"></i> Personal details</h3>
+          <div class="row g-3">
+            <div class="col-md-6 field">
+              {{ form.full_name.label(class="field-label") }}
+              {{ form.full_name(class="form-control") }}
+              {% for e in form.full_name.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="col-md-6 field">
+              {{ form.phone.label(class="field-label") }}
+              {{ form.phone(class="form-control") }}
+            </div>
+            <div class="col-12 field">
+              {{ form.email.label(class="field-label") }}
+              {{ form.email(class="form-control") }}
+              {% for e in form.email.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="col-12 field">
+              {{ form.bio.label(class="field-label") }}
+              {{ form.bio(class="form-control", rows="3", placeholder="Tell us about your trekking experience...") }}
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h3 class="form-section-title"><i class="bi bi-shield-lock"></i> Change password</h3>
+          <div class="row g-3">
+            <div class="col-md-6 field">
+              {{ form.password.label(class="field-label") }}
+              {{ form.password(class="form-control", placeholder="Leave blank to keep current") }}
+              {% for e in form.password.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="col-md-6 field">
+              {{ form.confirm.label(class="field-label") }}
+              {{ form.confirm(class="form-control") }}
+              {% for e in form.confirm.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          {{ form.submit(class="btn btn-brand") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

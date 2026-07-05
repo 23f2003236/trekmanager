@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{#
+  Reusable dashboard shell with a sidebar + topbar.
+  Child templates define:
+    - block sidebar_nav   : the role-specific navigation links
+    - block page_title     : the H1 in the topbar
+    - block page_subtitle  : optional caption under the title
+    - block topbar_actions : optional buttons on the right of the topbar
+    - block dashboard_content : the main page body
+    - set role_label / role variables for the badge (optional)
+#}
+
+{% block layout %}
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a class="brand" href="{{ url_for('main.index') }}">
+        <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+        <span class="brand-text">{{ app_name }}</span>
+      </a>
+      <button class="sidebar-close d-lg-none" data-sidebar-close aria-label="Close menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-role">
+      <span class="role-chip role-{{ current_user.role }}">
+        <i class="bi bi-{{ 'shield-lock' if current_user.is_admin else ('compass' if current_user.is_staff else 'person') }}"></i>
+        {{ current_user.role|capitalize }} Panel
+      </span>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% block sidebar_nav %}{% endblock %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">{{ current_user.initials }}</div>
+        <div class="sidebar-user-meta">
+          <span class="sidebar-user-name">{{ current_user.full_name }}</span>
+          <span class="sidebar-user-mail">{{ current_user.email }}</span>
+        </div>
+      </div>
+      <a class="sidebar-signout" href="{{ url_for('auth.logout') }}">
+        <i class="bi bi-box-arrow-right"></i> Sign out
+      </a>
+    </div>
+  </aside>
+
+  <div class="sidebar-backdrop" data-sidebar-close></div>
+
+  <!-- Main area -->
+  <div class="app-main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle d-lg-none" data-sidebar-open aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+          <p class="topbar-subtitle">{% block page_subtitle %}{% endblock %}</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        {% block topbar_actions %}{% endblock %}
+        <div class="topbar-avatar" title="{{ current_user.full_name }}">
+          {{ current_user.initials }}
+        </div>
+      </div>
+    </header>
+
+    {% include "partials/flashes.html" %}
+
+    <main class="app-content">
+      {% block dashboard_content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}

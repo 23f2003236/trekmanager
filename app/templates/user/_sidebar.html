@@ -1,0 +1,10 @@
+{# User sidebar navigation links. #}
+<a class="nav-link {{ 'active' if active == 'dashboard' }}" href="{{ url_for('user.dashboard') }}">
+  <i class="bi bi-grid-1x2"></i> Dashboard</a>
+<a class="nav-link {{ 'active' if active == 'treks' }}" href="{{ url_for('user.treks') }}">
+  <i class="bi bi-compass"></i> Explore Treks</a>
+<a class="nav-link {{ 'active' if active == 'bookings' }}" href="{{ url_for('user.bookings') }}">
+  <i class="bi bi-journal-check"></i> My Bookings</a>
+<span class="nav-section">Account</span>
+<a class="nav-link {{ 'active' if active == 'profile' }}" href="{{ url_for('user.profile') }}">
+  <i class="bi bi-person-gear"></i> Profile</a>

@@ -1,0 +1,113 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import stat_card, empty_state %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Overview{% endblock %}
+{% block page_subtitle %}Welcome back, {{ current_user.full_name.split()[0] }} — here's what's happening.{% endblock %}
+{% set active = 'dashboard' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-brand btn-sm" href="{{ url_for('admin.trek_create') }}"><i class="bi bi-plus-lg"></i> New Trek</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Stat cards -->
+<div class="stat-grid">
+  {{ stat_card('Total Treks', stats.total_treks, 'bi-signpost-2', 'primary') }}
+  {{ stat_card('Total Users', stats.total_users, 'bi-people', 'indigo') }}
+  {{ stat_card('Total Staff', stats.total_staff, 'bi-person-vcard', 'emerald') }}
+  {{ stat_card('Pending Staff', stats.pending_staff, 'bi-hourglass-split', 'amber') }}
+  {{ stat_card('Active Bookings', stats.total_bookings, 'bi-journal-check', 'sky') }}
+  {{ stat_card('Completed Treks', stats.completed_treks, 'bi-flag', 'rose') }}
+</div>
+
+<div class="row g-4 mt-1">
+  <!-- Upcoming treks -->
+  <div class="col-lg-7">
+    <div class="panel">
+      <div class="panel-head">
+        <h3><i class="bi bi-calendar-event"></i> Upcoming &amp; open treks</h3>
+        <a class="panel-link" href="{{ url_for('admin.treks') }}">View all <i class="bi bi-arrow-right"></i></a>
+      </div>
+      {% if upcoming %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Trek</th><th>Date</th><th>Slots</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for t in upcoming %}
+            <tr onclick="window.location='{{ url_for('admin.trek_detail', trek_id=t.id) }}'">
+              <td>
+                <div class="cell-title">{{ t.name }}</div>
+                <div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ t.location }}</div>
+              </td>
+              <td>{{ t.start_date|date_pretty }}</td>
+              <td>
+                <div class="mini-progress">
+                  <div class="progress trek-progress"><div class="progress-bar" style="width:{{ t.fill_percent }}%"></div></div>
+                  <span>{{ t.remaining_slots }}/{{ t.slots }}</span>
+                </div>
+              </td>
+              <td><span class="pill {{ t.status_class }}">{{ t.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        {{ empty_state('bi-signpost-split', 'No upcoming treks', 'Create your first trek to get started.', url_for('admin.trek_create'), 'Create Trek') }}
+      {% endif %}
+    </div>
+
+    <!-- Pending staff -->
+    <div class="panel mt-4">
+      <div class="panel-head">
+        <h3><i class="bi bi-person-plus"></i> Staff awaiting approval</h3>
+        <a class="panel-link" href="{{ url_for('admin.staff') }}">Manage <i class="bi bi-arrow-right"></i></a>
+      </div>
+      {% if pending_staff_list %}
+        {% for s in pending_staff_list %}
+        <div class="approval-row">
+          <div class="approval-person">
+            <div class="avatar avatar-sm">{{ s.initials }}</div>
+            <div>
+              <div class="cell-title">{{ s.full_name }}</div>
+              <div class="cell-sub">{{ s.email }}</div>
+            </div>
+          </div>
+          <div class="approval-actions">
+            <form method="post" action="{{ url_for('admin.staff_action', staff_id=s.id) }}">
+              <button name="action" value="approve" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Approve</button>
+              <button name="action" value="reject" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i> Reject</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-check2-circle"></i> No pending applications. All caught up!</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Activity feed -->
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-head"><h3><i class="bi bi-activity"></i> Recent activity</h3></div>
+      {% if activities %}
+      <ul class="timeline">
+        {% for a in activities %}
+        <li class="timeline-item">
+          <span class="timeline-dot cat-{{ a.category }}"><i class="bi {{ a.icon }}"></i></span>
+          <div class="timeline-body">
+            <p>{{ a.action }}</p>
+            <span class="timeline-time">{{ a.created_at|datetime_pretty }}</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-clock-history"></i> No activity yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}{{ member.full_name }}{% endblock %}
+{% block page_title %}{{ member.full_name }}{% endblock %}
+{% block page_subtitle %}@{{ member.username }} · {{ member.role|capitalize }}{% endblock %}
+{% set active = 'users' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-ghost btn-sm" href="{{ url_for('admin.users') }}"><i class="bi bi-arrow-left"></i> Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="panel profile-panel">
+      <div class="avatar avatar-xl">{{ member.initials }}</div>
+      <h3>{{ member.full_name }}</h3>
+      <p class="cell-sub">{{ member.email }}</p>
+      {% if member.is_blacklisted %}<span class="pill badge-status-cancelled">Blacklisted</span>
+      {% else %}<span class="pill badge-status-open">Active</span>{% endif %}
+      <ul class="kv-list mt-3 text-start">
+        <li><span><i class="bi bi-telephone"></i> Phone</span><strong>{{ member.phone or '—' }}</strong></li>
+        <li><span><i class="bi bi-calendar3"></i> Joined</span><strong>{{ member.created_at|date_pretty }}</strong></li>
+        <li><span><i class="bi bi-journal-check"></i> Bookings</span><strong>{{ bookings|length }}</strong></li>
+      </ul>
+      {% if member.bio %}<p class="detail-desc mt-3 text-start">{{ member.bio }}</p>{% endif %}
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-head"><h3><i class="bi bi-journal-check"></i> Booking history</h3></div>
+      {% if bookings %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Trek</th><th>Booked on</th><th>Payment</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td><div class="cell-title">{{ b.trek.name if b.trek else '—' }}</div><div class="cell-sub">{{ b.trek.location if b.trek else '' }}</div></td>
+              <td>{{ b.booking_date|date_pretty }}</td>
+              <td><span class="pill {{ b.payment_class }}">{{ b.payment_status|capitalize }}</span></td>
+              <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-journal-x"></i> This user hasn't booked any treks yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

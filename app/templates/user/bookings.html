@@ -1,0 +1,67 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}My Bookings{% endblock %}
+{% block page_title %}My Bookings{% endblock %}
+{% block page_subtitle %}Manage your upcoming and past adventures.{% endblock %}
+{% set active = 'bookings' %}
+{% block sidebar_nav %}{% include "user/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<!-- Upcoming -->
+<div class="panel">
+  <div class="panel-head"><h3><i class="bi bi-calendar-event"></i> Upcoming ({{ upcoming|length }})</h3></div>
+  {% if upcoming %}
+  <div class="row g-3">
+    {% for b in upcoming %}
+    <div class="col-md-6">
+      <div class="booking-tile">
+        <span class="booking-thumb" style="background-image:url('{{ url_for('static', filename='images/' ~ b.trek.image_url) }}')"></span>
+        <div class="booking-tile-body">
+          <div class="cell-title">{{ b.trek.name }}</div>
+          <div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ b.trek.location }}</div>
+          <div class="cell-sub"><i class="bi bi-calendar3"></i> {{ b.trek.start_date|date_pretty }}</div>
+          <div class="mt-2 d-flex gap-2 align-items-center flex-wrap">
+            <span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span>
+            <span class="pill {{ b.payment_class }}">{{ b.payment_status|capitalize }}</span>
+          </div>
+          <div class="mt-2 d-flex gap-2">
+            <a class="btn btn-soft btn-sm" href="{{ url_for('user.trek_detail', trek_id=b.trek.id) }}">Details</a>
+            <form method="post" action="{{ url_for('user.booking_cancel', booking_id=b.booking_id) }}" data-confirm="Cancel your booking for '{{ b.trek.name }}'?">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i> Cancel</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    {{ empty_state('bi-calendar-x', 'No upcoming bookings', 'Discover your next great trek and book your spot.', url_for('user.treks'), 'Explore Treks') }}
+  {% endif %}
+</div>
+
+<!-- History -->
+<div class="panel mt-4">
+  <div class="panel-head"><h3><i class="bi bi-clock-history"></i> Booking history ({{ history|length }})</h3></div>
+  {% if history %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Trek</th><th>Date</th><th>Booked on</th><th>Payment</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in history %}
+        <tr>
+          <td><div class="cell-title">{{ b.trek.name if b.trek else '—' }}</div><div class="cell-sub">{{ b.trek.location if b.trek else '' }}</div></td>
+          <td class="cell-sub">{{ b.trek.start_date|date_pretty if b.trek else '—' }}</td>
+          <td class="cell-sub">{{ b.booking_date|date_pretty }}</td>
+          <td><span class="pill {{ b.payment_class }}">{{ b.payment_status|capitalize }}</span></td>
+          <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-inline"><i class="bi bi-journal"></i> No past bookings yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

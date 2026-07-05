@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+
+{% block layout %}
+<div class="auth-split">
+  <div class="auth-aside auth-aside-alt">
+    <div class="auth-aside-inner">
+      <a class="brand text-white" href="{{ url_for('main.index') }}">
+        <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+        <span class="brand-text">{{ app_name }}</span>
+      </a>
+      <div class="auth-aside-body">
+        <h2>Begin your<br>expedition.</h2>
+        <p>Create a free account to book treks, or apply as a certified guide to lead them.</p>
+        <ul class="auth-points">
+          <li><i class="bi bi-check-circle-fill"></i> Free for trekkers, forever</li>
+          <li><i class="bi bi-check-circle-fill"></i> Guides reviewed &amp; approved by admins</li>
+          <li><i class="bi bi-check-circle-fill"></i> Manage everything in one dashboard</li>
+        </ul>
+      </div>
+      <div class="auth-aside-foot">© {{ current_year }} {{ app_name }}</div>
+    </div>
+  </div>
+
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <a class="brand d-lg-none mb-4" href="{{ url_for('main.index') }}">
+        <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+        <span class="brand-text">{{ app_name }}</span>
+      </a>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-sub">Join TrekVault in under a minute.</p>
+
+      {% include "partials/flashes.html" %}
+
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+          <div class="col-12 field">
+            {{ form.full_name.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-person-badge"></i>{{ form.full_name(class="form-control", placeholder="Jane Trekker") }}</div>
+            {% for e in form.full_name.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-md-6 field">
+            {{ form.username.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-at"></i>{{ form.username(class="form-control", placeholder="janetrekker") }}</div>
+            {% for e in form.username.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-md-6 field">
+            {{ form.phone.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-telephone"></i>{{ form.phone(class="form-control", placeholder="+91 …") }}</div>
+            {% for e in form.phone.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-12 field">
+            {{ form.email.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-envelope"></i>{{ form.email(class="form-control", placeholder="you@email.com") }}</div>
+            {% for e in form.email.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-12 field">
+            {{ form.role.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-people"></i>{{ form.role(class="form-select") }}</div>
+            {% for e in form.role.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-md-6 field">
+            {{ form.password.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-lock"></i>{{ form.password(class="form-control", placeholder="••••••••") }}</div>
+            {% for e in form.password.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="col-md-6 field">
+            {{ form.confirm.label(class="field-label") }}
+            <div class="input-icon"><i class="bi bi-lock-fill"></i>{{ form.confirm(class="form-control", placeholder="••••••••") }}</div>
+            {% for e in form.confirm.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+          </div>
+        </div>
+        {{ form.submit(class="btn btn-brand w-100 btn-lg mt-4") }}
+      </form>
+
+      <div class="auth-alt">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

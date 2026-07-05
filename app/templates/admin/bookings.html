@@ -1,0 +1,50 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}Bookings{% endblock %}
+{% block page_title %}Bookings{% endblock %}
+{% block page_subtitle %}Every reservation made across all treks.{% endblock %}
+{% set active = 'bookings' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <form class="filter-bar" method="get" action="{{ url_for('admin.bookings') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Search by trekker or trek name...">
+    </div>
+    <select class="form-select filter-select" name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|capitalize }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-brand" type="submit">Filter</button>
+  </form>
+
+  {% if booking_list %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Trekker</th><th>Trek</th><th>Date</th><th>Payment</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in booking_list %}
+        <tr>
+          <td class="cell-sub">#{{ b.booking_id }}</td>
+          <td>
+            <div class="approval-person">
+              <div class="avatar avatar-sm">{{ b.user.initials }}</div>
+              <div class="cell-title">{{ b.user.full_name }}</div>
+            </div>
+          </td>
+          <td><div class="cell-title">{{ b.trek.name if b.trek else '—' }}</div><div class="cell-sub">{{ b.trek.location if b.trek else '' }}</div></td>
+          <td>{{ b.booking_date|date_pretty }}</td>
+          <td><span class="pill {{ b.payment_class }}">{{ b.payment_status|capitalize }}</span></td>
+          <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    {{ empty_state('bi-journal-x', 'No bookings found', 'No bookings match your filters yet.') }}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{# Staff sidebar navigation links. #}
+<a class="nav-link {{ 'active' if active == 'dashboard' }}" href="{{ url_for('staff.dashboard') }}">
+  <i class="bi bi-grid-1x2"></i> Dashboard</a>
+<a class="nav-link {{ 'active' if active == 'treks' }}" href="{{ url_for('staff.treks') }}">
+  <i class="bi bi-signpost-2"></i> My Treks</a>

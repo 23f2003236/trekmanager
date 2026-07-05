@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Approval pending{% endblock %}
+
+{% block layout %}
+<div class="centered-page">
+  <div class="pending-card glass">
+    <div class="pending-icon"><i class="bi bi-hourglass-split"></i></div>
+    <h1>Application under review</h1>
+    <p>
+      Thanks for applying to guide with {{ app_name }}, <strong>{{ current_user.full_name }}</strong>.
+      An administrator will review your credentials shortly. You'll be able to access the
+      staff dashboard as soon as your account is approved.
+    </p>
+    <div class="pending-status">
+      <span class="pill badge-status-closed"><i class="bi bi-clock-history"></i> Status: Pending approval</span>
+    </div>
+    <div class="pending-actions">
+      <a class="btn btn-brand" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Sign out</a>
+      <a class="btn btn-ghost" href="{{ url_for('main.index') }}">Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

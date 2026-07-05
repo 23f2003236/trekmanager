@@ -1,0 +1,74 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import difficulty_badge %}
+{% block title %}{{ trek.name }}{% endblock %}
+{% block page_title %}{{ trek.name }}{% endblock %}
+{% block page_subtitle %}{{ trek.location }}{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "user/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-ghost btn-sm" href="{{ url_for('user.treks') }}"><i class="bi bi-arrow-left"></i> Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="detail-hero detail-hero-lg" style="background-image:linear-gradient(180deg, rgba(15,23,42,.05), rgba(15,23,42,.7)), url('{{ url_for('static', filename='images/' ~ trek.image_url) }}')">
+      <div class="detail-hero-top">
+        {{ difficulty_badge(trek) }}
+        <span class="pill {{ trek.status_class }}">{{ trek.status|capitalize }}</span>
+      </div>
+      <div class="detail-hero-caption">
+        <h2>{{ trek.name }}</h2>
+        <span><i class="bi bi-geo-alt"></i> {{ trek.location }}</span>
+      </div>
+    </div>
+
+    <div class="panel mt-3">
+      <h3 class="panel-mini-title">About this expedition</h3>
+      <p class="detail-desc">{{ trek.description or 'No description provided.' }}</p>
+      <div class="feature-row mt-3">
+        <div class="feature-chip"><i class="bi bi-calendar3"></i><div><span>Starts</span><strong>{{ trek.start_date|date_pretty }}</strong></div></div>
+        <div class="feature-chip"><i class="bi bi-calendar-check"></i><div><span>Ends</span><strong>{{ trek.end_date|date_pretty }}</strong></div></div>
+        <div class="feature-chip"><i class="bi bi-clock"></i><div><span>Duration</span><strong>{{ trek.duration }} days</strong></div></div>
+        <div class="feature-chip"><i class="bi bi-person-vcard"></i><div><span>Guide</span><strong>{{ trek.staff.full_name if trek.staff else 'TBA' }}</strong></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking box -->
+  <div class="col-lg-5">
+    <div class="panel booking-box">
+      <div class="booking-price">{{ trek.price|currency }} <span>/ person</span></div>
+      <div class="mt-3">
+        <div class="d-flex justify-content-between mb-1"><span class="slots-label">{{ trek.remaining_slots }} of {{ trek.slots }} slots left</span><span class="slots-pct">{{ trek.fill_percent }}%</span></div>
+        <div class="progress trek-progress"><div class="progress-bar" style="width:{{ trek.fill_percent }}%"></div></div>
+      </div>
+
+      <hr class="soft-divider">
+
+      {% if already_booked %}
+        <div class="booked-banner"><i class="bi bi-check2-circle"></i> You've already booked this trek.</div>
+        <a class="btn btn-soft w-100" href="{{ url_for('user.bookings') }}">View my bookings</a>
+      {% elif not trek.is_bookable %}
+        <div class="unavailable-banner">
+          <i class="bi bi-lock"></i>
+          {% if trek.remaining_slots <= 0 %} This trek is fully booked.
+          {% else %} Booking is currently closed for this trek. {% endif %}
+        </div>
+        <a class="btn btn-ghost w-100" href="{{ url_for('user.treks') }}">Browse other treks</a>
+      {% else %}
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="field">
+            {{ form.remarks.label(class="field-label") }}
+            {{ form.remarks(class="form-control", rows="3", placeholder="Dietary needs, gear questions, etc.") }}
+          </div>
+          {{ form.submit(class="btn btn-brand w-100 btn-lg") }}
+          <p class="field-hint text-center mt-2"><i class="bi bi-shield-check"></i> Free cancellation before departure.</p>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

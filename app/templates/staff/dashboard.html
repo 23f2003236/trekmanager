@@ -1,0 +1,100 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import stat_card, empty_state %}
+{% block title %}Guide Dashboard{% endblock %}
+{% block page_title %}Guide Dashboard{% endblock %}
+{% block page_subtitle %}Welcome, {{ current_user.full_name.split()[0] }} — manage your assigned expeditions.{% endblock %}
+{% set active = 'dashboard' %}
+{% block sidebar_nav %}{% include "staff/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="stat-grid">
+  {{ stat_card('Assigned Treks', stats.assigned, 'bi-signpost-2', 'primary') }}
+  {{ stat_card("Today's Treks", stats.today, 'bi-sun', 'amber') }}
+  {{ stat_card('Upcoming', stats.upcoming, 'bi-calendar-event', 'sky') }}
+  {{ stat_card('Participants', stats.participants, 'bi-people', 'emerald') }}
+  {{ stat_card('Completed', stats.completed, 'bi-flag', 'rose') }}
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-7">
+    <!-- Today's treks -->
+    <div class="panel">
+      <div class="panel-head"><h3><i class="bi bi-sun"></i> Today's departures</h3></div>
+      {% if todays %}
+        {% for t in todays %}
+        <div class="today-trek">
+          <div>
+            <div class="cell-title">{{ t.name }}</div>
+            <div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ t.location }} · {{ t.booked_slots }} trekkers</div>
+          </div>
+          <a class="btn btn-brand btn-sm" href="{{ url_for('staff.trek_detail', trek_id=t.id) }}">Manage <i class="bi bi-arrow-right"></i></a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-cup-hot"></i> No treks departing today. Enjoy the rest!</div>
+      {% endif %}
+    </div>
+
+    <!-- Upcoming -->
+    <div class="panel mt-4">
+      <div class="panel-head">
+        <h3><i class="bi bi-calendar-event"></i> Upcoming treks</h3>
+        <a class="panel-link" href="{{ url_for('staff.treks') }}">All <i class="bi bi-arrow-right"></i></a>
+      </div>
+      {% if upcoming %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Trek</th><th>Date</th><th>Slots</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for t in upcoming %}
+            <tr onclick="window.location='{{ url_for('staff.trek_detail', trek_id=t.id) }}'">
+              <td><div class="cell-title">{{ t.name }}</div><div class="cell-sub">{{ t.location }}</div></td>
+              <td>{{ t.start_date|date_pretty }}</td>
+              <td><div class="mini-progress"><div class="progress trek-progress"><div class="progress-bar" style="width:{{ t.fill_percent }}%"></div></div><span>{{ t.remaining_slots }}/{{ t.slots }}</span></div></td>
+              <td><span class="pill {{ t.status_class }}">{{ t.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        {{ empty_state('bi-signpost-split', 'No upcoming treks', 'You have no treks assigned yet. The admin will assign expeditions to you.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <!-- Ongoing -->
+    <div class="panel">
+      <div class="panel-head"><h3><i class="bi bi-broadcast"></i> In progress</h3></div>
+      {% if ongoing %}
+        {% for t in ongoing %}
+        <div class="today-trek">
+          <div><div class="cell-title">{{ t.name }}</div><div class="cell-sub live-dot">Live now</div></div>
+          <form method="post" action="{{ url_for('staff.trek_status', trek_id=t.id) }}">
+            <button name="action" value="complete" class="btn btn-success btn-sm" data-confirm="Mark '{{ t.name }}' as completed?"><i class="bi bi-flag"></i> Complete</button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-pause-circle"></i> No treks currently in progress.</div>
+      {% endif %}
+    </div>
+
+    <!-- Activity -->
+    <div class="panel mt-4">
+      <div class="panel-head"><h3><i class="bi bi-activity"></i> Recent activity</h3></div>
+      {% if activities %}
+      <ul class="timeline">
+        {% for a in activities %}
+        <li class="timeline-item">
+          <span class="timeline-dot cat-{{ a.category }}"><i class="bi {{ a.icon }}"></i></span>
+          <div class="timeline-body"><p>{{ a.action }}</p><span class="timeline-time">{{ a.created_at|datetime_pretty }}</span></div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}<div class="empty-inline"><i class="bi bi-clock-history"></i> No activity yet.</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

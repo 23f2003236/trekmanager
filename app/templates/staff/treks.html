@@ -1,0 +1,49 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}My Treks{% endblock %}
+{% block page_title %}My Treks{% endblock %}
+{% block page_subtitle %}Expeditions assigned to you.{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "staff/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <form class="filter-bar" method="get" action="{{ url_for('staff.treks') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Search your treks...">
+    </div>
+    <select class="form-select filter-select" name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|capitalize }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-brand" type="submit">Filter</button>
+  </form>
+
+  {% if treks %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Trek</th><th>Dates</th><th>Participants</th><th>Status</th><th class="text-end">Manage</th></tr></thead>
+      <tbody>
+        {% for t in treks %}
+        <tr>
+          <td>
+            <div class="trek-cell">
+              <span class="trek-thumb" style="background-image:url('{{ url_for('static', filename='images/' ~ t.image_url) }}')"></span>
+              <div><div class="cell-title">{{ t.name }}</div><div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ t.location }}</div></div>
+            </div>
+          </td>
+          <td><div class="cell-sub">{{ t.start_date|date_pretty }}</div><div class="cell-sub">→ {{ t.end_date|date_pretty }}</div></td>
+          <td><div class="mini-progress"><div class="progress trek-progress"><div class="progress-bar" style="width:{{ t.fill_percent }}%"></div></div><span>{{ t.booked_slots }}/{{ t.slots }}</span></div></td>
+          <td><span class="pill {{ t.status_class }}">{{ t.status|capitalize }}</span></td>
+          <td class="text-end"><a class="btn btn-brand btn-sm" href="{{ url_for('staff.trek_detail', trek_id=t.id) }}">Open <i class="bi bi-arrow-right"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    {{ empty_state('bi-signpost-split', 'No treks assigned', 'You have no expeditions assigned yet. The admin assigns treks to guides.') }}
+  {% endif %}
+</div>
+{% endblock %}

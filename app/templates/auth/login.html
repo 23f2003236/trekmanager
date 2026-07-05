@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+
+{% block layout %}
+<div class="auth-split">
+  <!-- Left: brand / imagery -->
+  <div class="auth-aside">
+    <div class="auth-aside-inner">
+      <a class="brand text-white" href="{{ url_for('main.index') }}">
+        <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+        <span class="brand-text">{{ app_name }}</span>
+      </a>
+      <div class="auth-aside-body">
+        <h2>Welcome back,<br>adventurer.</h2>
+        <p>Your next summit is one sign-in away. Track bookings, manage treks and keep exploring.</p>
+        <ul class="auth-points">
+          <li><i class="bi bi-check-circle-fill"></i> Real-time trek availability</li>
+          <li><i class="bi bi-check-circle-fill"></i> Certified expedition guides</li>
+          <li><i class="bi bi-check-circle-fill"></i> Secure, instant booking</li>
+        </ul>
+      </div>
+      <div class="auth-aside-foot">© {{ current_year }} {{ app_name }}</div>
+    </div>
+  </div>
+
+  <!-- Right: form -->
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <a class="brand d-lg-none mb-4" href="{{ url_for('main.index') }}">
+        <span class="brand-mark"><i class="bi bi-triangle-fill"></i></span>
+        <span class="brand-text">{{ app_name }}</span>
+      </a>
+      <h1 class="auth-title">Sign in</h1>
+      <p class="auth-sub">Enter your credentials to access your dashboard.</p>
+
+      {% include "partials/flashes.html" %}
+
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="field">
+          {{ form.username.label(class="field-label") }}
+          <div class="input-icon">
+            <i class="bi bi-person"></i>
+            {{ form.username(class="form-control", placeholder="admin or you@email.com") }}
+          </div>
+          {% for e in form.username.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="field">
+          {{ form.password.label(class="field-label") }}
+          <div class="input-icon">
+            <i class="bi bi-lock"></i>
+            {{ form.password(class="form-control", placeholder="••••••••", id="passwordField") }}
+            <button type="button" class="pw-toggle" data-toggle-password="passwordField" aria-label="Show password"><i class="bi bi-eye"></i></button>
+          </div>
+          {% for e in form.password.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="field-row">
+          <label class="check">
+            {{ form.remember() }} <span>{{ form.remember.label.text }}</span>
+          </label>
+        </div>
+
+        {{ form.submit(class="btn btn-brand w-100 btn-lg") }}
+      </form>
+
+      <div class="auth-alt">
+        New here? <a href="{{ url_for('auth.register') }}">Create an account</a>
+      </div>
+
+      <div class="demo-creds">
+        <span class="demo-title"><i class="bi bi-key"></i> Demo accounts</span>
+        <div class="demo-grid">
+          <div><strong>Admin</strong> admin / admin123</div>
+          <div><strong>Staff</strong> tenzing / staff123</div>
+          <div><strong>User</strong> rahul / user123</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block layout_after %}{% endblock %}
+
+{% block scripts %}{% endblock %}

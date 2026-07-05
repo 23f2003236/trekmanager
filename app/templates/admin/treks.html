@@ -1,0 +1,78 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}Manage Treks{% endblock %}
+{% block page_title %}Treks{% endblock %}
+{% block page_subtitle %}Create, edit and organise every expedition.{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-brand btn-sm" href="{{ url_for('admin.trek_create') }}"><i class="bi bi-plus-lg"></i> New Trek</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <!-- Filters -->
+  <form class="filter-bar" method="get" action="{{ url_for('admin.treks') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Search by name or location...">
+    </div>
+    <select class="form-select filter-select" name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|capitalize }}</option>{% endfor %}
+    </select>
+    <select class="form-select filter-select" name="difficulty" onchange="this.form.submit()">
+      <option value="">All difficulties</option>
+      {% for d in ['Easy','Moderate','Hard','Extreme'] %}<option value="{{ d }}" {{ 'selected' if difficulty == d }}>{{ d }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-brand" type="submit">Filter</button>
+  </form>
+
+  {% if treks %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Trek</th><th>Difficulty</th><th>Dates</th><th>Slots</th><th>Guide</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+      <tbody>
+        {% for t in treks %}
+        <tr>
+          <td>
+            <div class="trek-cell">
+              <span class="trek-thumb" style="background-image:url('{{ url_for('static', filename='images/' ~ t.image_url) }}')"></span>
+              <div>
+                <div class="cell-title">{{ t.name }}</div>
+                <div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ t.location }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="pill {{ t.difficulty_class }}">{{ t.difficulty }}</span></td>
+          <td><div class="cell-sub">{{ t.start_date|date_pretty }}</div><div class="cell-sub">→ {{ t.end_date|date_pretty }}</div></td>
+          <td>
+            <div class="mini-progress">
+              <div class="progress trek-progress"><div class="progress-bar" style="width:{{ t.fill_percent }}%"></div></div>
+              <span>{{ t.remaining_slots }}/{{ t.slots }}</span>
+            </div>
+          </td>
+          <td>{% if t.staff %}<span class="cell-sub">{{ t.staff.full_name }}</span>{% else %}<span class="cell-sub text-muted">—</span>{% endif %}</td>
+          <td><span class="pill {{ t.status_class }}">{{ t.status|capitalize }}</span></td>
+          <td class="text-end">
+            <div class="row-actions">
+              <a class="icon-btn" title="View" href="{{ url_for('admin.trek_detail', trek_id=t.id) }}"><i class="bi bi-eye"></i></a>
+              <a class="icon-btn" title="Edit" href="{{ url_for('admin.trek_edit', trek_id=t.id) }}"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{{ url_for('admin.trek_delete', trek_id=t.id) }}" data-confirm="Delete '{{ t.name }}'? This cannot be undone.">
+                <button class="icon-btn icon-danger" title="Delete"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include "partials/pagination.html" %}
+  {% else %}
+    {{ empty_state('bi-signpost-split', 'No treks found', 'Try adjusting your filters, or create a new trek.', url_for('admin.trek_create'), 'Create Trek') }}
+  {% endif %}
+</div>
+{% endblock %}

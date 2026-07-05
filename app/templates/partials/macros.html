@@ -1,0 +1,86 @@
+{# ==========================================================================
+   Reusable Jinja macros used across dashboards to avoid duplicated markup.
+   ========================================================================== #}
+
+{# Statistics widget card. #}
+{% macro stat_card(label, value, icon, tone='primary', hint=None) %}
+<div class="stat-card stat-{{ tone }}">
+  <div class="stat-icon"><i class="bi {{ icon }}"></i></div>
+  <div class="stat-body">
+    <span class="stat-value">{{ value }}</span>
+    <span class="stat-label">{{ label }}</span>
+    {% if hint %}<span class="stat-hint">{{ hint }}</span>{% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{# Difficulty badge. #}
+{% macro difficulty_badge(trek) %}
+<span class="pill {{ trek.difficulty_class }}"><i class="bi bi-graph-up-arrow"></i> {{ trek.difficulty }}</span>
+{% endmacro %}
+
+{# Status badge for treks. #}
+{% macro status_badge(status, css) %}
+<span class="pill {{ css }}">{{ status|capitalize }}</span>
+{% endmacro %}
+
+{# Empty state block. #}
+{% macro empty_state(icon, title, message, action_url=None, action_label=None) %}
+<div class="empty-state">
+  <div class="empty-illustration"><i class="bi {{ icon }}"></i></div>
+  <h3>{{ title }}</h3>
+  <p>{{ message }}</p>
+  {% if action_url %}
+    <a class="btn btn-brand" href="{{ action_url }}"><i class="bi bi-plus-lg"></i> {{ action_label }}</a>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{# Trek card used in grids. `href` is the detail link; `cta` optional button. #}
+{% macro trek_card(trek, href, booked=False) %}
+<article class="trek-card">
+  <a class="trek-card-media" href="{{ href }}"
+     style="background-image:linear-gradient(180deg, rgba(15,23,42,0) 30%, rgba(15,23,42,.72) 100%), url('{{ url_for('static', filename='images/' ~ trek.image_url) }}');">
+    <div class="trek-card-top">
+      {{ difficulty_badge(trek) }}
+      <span class="pill {{ trek.status_class }}">{{ trek.status|capitalize }}</span>
+    </div>
+    <div class="trek-card-caption">
+      <h3>{{ trek.name }}</h3>
+      <span class="trek-loc"><i class="bi bi-geo-alt"></i> {{ trek.location }}</span>
+    </div>
+  </a>
+  <div class="trek-card-body">
+    <div class="trek-meta">
+      <span><i class="bi bi-calendar3"></i> {{ trek.start_date|date_pretty }}</span>
+      <span><i class="bi bi-clock"></i> {{ trek.duration }} days</span>
+    </div>
+    <div class="trek-slots">
+      <div class="d-flex justify-content-between">
+        <span class="slots-label">{{ trek.remaining_slots }} of {{ trek.slots }} slots left</span>
+        <span class="slots-pct">{{ trek.fill_percent }}%</span>
+      </div>
+      <div class="progress trek-progress">
+        <div class="progress-bar" role="progressbar" style="width: {{ trek.fill_percent }}%"></div>
+      </div>
+    </div>
+    <div class="trek-card-foot">
+      <span class="trek-price">{{ trek.price|currency }}</span>
+      {% if booked %}
+        <span class="btn btn-soft disabled"><i class="bi bi-check2-circle"></i> Booked</span>
+      {% else %}
+        <a class="btn btn-brand btn-sm" href="{{ href }}">View <i class="bi bi-arrow-right"></i></a>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endmacro %}
+
+{# Search bar with icon. Renders a GET form. #}
+{% macro search_bar(action, keyword='', placeholder='Search...') %}
+<form class="search-bar" method="get" action="{{ action }}">
+  <i class="bi bi-search"></i>
+  <input type="text" name="keyword" value="{{ keyword }}" placeholder="{{ placeholder }}" autocomplete="off">
+  <button type="submit" class="btn btn-brand btn-sm">Search</button>
+</form>
+{% endmacro %}

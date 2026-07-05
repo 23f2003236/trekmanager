@@ -1,0 +1,92 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}{{ trek.name }}{% endblock %}
+{% block page_title %}{{ trek.name }}{% endblock %}
+{% block page_subtitle %}{{ trek.location }}{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "staff/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-ghost btn-sm" href="{{ url_for('staff.treks') }}"><i class="bi bi-arrow-left"></i> Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="detail-hero" style="background-image:linear-gradient(180deg, rgba(15,23,42,.1), rgba(15,23,42,.75)), url('{{ url_for('static', filename='images/' ~ trek.image_url) }}')">
+      <div class="detail-hero-top">
+        <span class="pill {{ trek.difficulty_class }}">{{ trek.difficulty }}</span>
+        <span class="pill {{ trek.status_class }}">{{ trek.status|capitalize }}</span>
+      </div>
+    </div>
+
+    <!-- Lifecycle controls -->
+    <div class="panel mt-3">
+      <h3 class="panel-mini-title"><i class="bi bi-toggles"></i> Trek controls</h3>
+      <div class="control-grid">
+        <form method="post" action="{{ url_for('staff.trek_status', trek_id=trek.id) }}">
+          <button name="action" value="open" class="btn btn-outline-success w-100" {{ 'disabled' if trek.status not in ['draft','closed'] }}><i class="bi bi-unlock"></i> Open</button>
+        </form>
+        <form method="post" action="{{ url_for('staff.trek_status', trek_id=trek.id) }}">
+          <button name="action" value="close" class="btn btn-outline-secondary w-100" {{ 'disabled' if trek.status != 'open' }}><i class="bi bi-lock"></i> Close</button>
+        </form>
+        <form method="post" action="{{ url_for('staff.trek_status', trek_id=trek.id) }}">
+          <button name="action" value="start" class="btn btn-outline-primary w-100" {{ 'disabled' if trek.status not in ['open','closed'] }} data-confirm="Start this trek?"><i class="bi bi-play"></i> Start</button>
+        </form>
+        <form method="post" action="{{ url_for('staff.trek_status', trek_id=trek.id) }}">
+          <button name="action" value="complete" class="btn btn-outline-dark w-100" {{ 'disabled' if trek.status != 'ongoing' }} data-confirm="Mark trek as completed?"><i class="bi bi-flag"></i> Complete</button>
+        </form>
+      </div>
+      <p class="field-hint mt-2">Transitions follow the natural trek lifecycle: draft → open → closed/ongoing → completed.</p>
+    </div>
+
+    <!-- Slot management -->
+    <div class="panel mt-3">
+      <h3 class="panel-mini-title"><i class="bi bi-people"></i> Capacity</h3>
+      <div class="d-flex justify-content-between mb-1"><span class="slots-label">{{ trek.booked_slots }} booked of {{ trek.slots }}</span><span class="slots-pct">{{ trek.fill_percent }}%</span></div>
+      <div class="progress trek-progress mb-3"><div class="progress-bar" style="width:{{ trek.fill_percent }}%"></div></div>
+      <form method="post" class="filter-bar">
+        {{ form.hidden_tag() }}
+        {{ form.slots(class="form-control", type="number", min="1") }}
+        {{ form.submit(class="btn btn-brand") }}
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="panel">
+      <h3 class="panel-mini-title">Details</h3>
+      <ul class="kv-list">
+        <li><span><i class="bi bi-calendar3"></i> Start</span><strong>{{ trek.start_date|date_pretty }}</strong></li>
+        <li><span><i class="bi bi-calendar-check"></i> End</span><strong>{{ trek.end_date|date_pretty }}</strong></li>
+        <li><span><i class="bi bi-clock"></i> Duration</span><strong>{{ trek.duration }} days</strong></li>
+        <li><span><i class="bi bi-cash"></i> Price</span><strong>{{ trek.price|currency }}</strong></li>
+      </ul>
+      <p class="detail-desc mt-3">{{ trek.description or 'No description provided.' }}</p>
+    </div>
+
+    <div class="panel mt-3">
+      <div class="panel-head"><h3><i class="bi bi-people"></i> Participant list ({{ participants|length }})</h3></div>
+      {% if participants %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Trekker</th><th>Contact</th><th>Booked</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for b in participants %}
+            <tr>
+              <td><div class="approval-person"><div class="avatar avatar-sm">{{ b.user.initials }}</div><div class="cell-title">{{ b.user.full_name }}</div></div></td>
+              <td><div class="cell-sub">{{ b.user.email }}</div><div class="cell-sub">{{ b.user.phone or '—' }}</div></td>
+              <td class="cell-sub">{{ b.booking_date|date_pretty }}</td>
+              <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-person-x"></i> No participants have booked yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

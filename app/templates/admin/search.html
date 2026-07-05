@@ -1,0 +1,89 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}Global Search{% endblock %}
+{% block page_title %}Global Search{% endblock %}
+{% block page_subtitle %}Search treks, users, staff and bookings all at once.{% endblock %}
+{% set active = 'search' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <form class="filter-bar" method="get" action="{{ url_for('admin.search') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Type a name, location, email..." autofocus>
+    </div>
+    <button class="btn btn-brand" type="submit">Search</button>
+  </form>
+</div>
+
+{% if q %}
+  <p class="search-summary">Found <strong>{{ total }}</strong> result{{ '' if total == 1 else 's' }} for "<strong>{{ q }}</strong>"</p>
+
+  {% if results.treks %}
+  <div class="panel mt-3">
+    <div class="panel-head"><h3><i class="bi bi-signpost-2"></i> Treks ({{ results.treks|length }})</h3></div>
+    <div class="table-wrap"><table class="data-table"><tbody>
+      {% for t in results.treks %}
+      <tr onclick="window.location='{{ url_for('admin.trek_detail', trek_id=t.id) }}'">
+        <td><div class="cell-title">{{ t.name }}</div><div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ t.location }}</div></td>
+        <td><span class="pill {{ t.status_class }}">{{ t.status|capitalize }}</span></td>
+        <td class="cell-sub">{{ t.start_date|date_pretty }}</td>
+      </tr>
+      {% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+
+  {% if results.users %}
+  <div class="panel mt-3">
+    <div class="panel-head"><h3><i class="bi bi-people"></i> Users ({{ results.users|length }})</h3></div>
+    <div class="table-wrap"><table class="data-table"><tbody>
+      {% for u in results.users %}
+      <tr onclick="window.location='{{ url_for('admin.user_detail', user_id=u.id) }}'">
+        <td><div class="approval-person"><div class="avatar avatar-sm">{{ u.initials }}</div><div class="cell-title">{{ u.full_name }}</div></div></td>
+        <td class="cell-sub">{{ u.email }}</td>
+      </tr>
+      {% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+
+  {% if results.staff %}
+  <div class="panel mt-3">
+    <div class="panel-head"><h3><i class="bi bi-person-vcard"></i> Staff ({{ results.staff|length }})</h3></div>
+    <div class="table-wrap"><table class="data-table"><tbody>
+      {% for s in results.staff %}
+      <tr>
+        <td><div class="approval-person"><div class="avatar avatar-sm">{{ s.initials }}</div><div class="cell-title">{{ s.full_name }}</div></div></td>
+        <td class="cell-sub">{{ s.email }}</td>
+        <td><span class="pill badge-status-open">{{ s.status|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+
+  {% if results.bookings %}
+  <div class="panel mt-3">
+    <div class="panel-head"><h3><i class="bi bi-journal-check"></i> Bookings ({{ results.bookings|length }})</h3></div>
+    <div class="table-wrap"><table class="data-table"><tbody>
+      {% for b in results.bookings %}
+      <tr>
+        <td class="cell-sub">#{{ b.booking_id }}</td>
+        <td class="cell-title">{{ b.user.full_name }}</td>
+        <td class="cell-sub">{{ b.trek.name if b.trek else '—' }}</td>
+        <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+
+  {% if total == 0 %}
+    {{ empty_state('bi-search', 'No results', 'Try a different keyword.') }}
+  {% endif %}
+{% else %}
+  {{ empty_state('bi-search', 'Start searching', 'Enter a keyword above to search across the whole platform.') }}
+{% endif %}
+{% endblock %}

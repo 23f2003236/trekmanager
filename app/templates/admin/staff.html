@@ -1,0 +1,63 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}Staff{% endblock %}
+{% block page_title %}Staff &amp; Guides{% endblock %}
+{% block page_subtitle %}Review applications and moderate guide accounts.{% endblock %}
+{% set active = 'staff' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <form class="filter-bar" method="get" action="{{ url_for('admin.staff') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Search staff by name, username or email...">
+    </div>
+    <select class="form-select filter-select" name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|capitalize }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-brand" type="submit">Filter</button>
+  </form>
+
+  {% if staff_list %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Guide</th><th>Contact</th><th>Assigned</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+      <tbody>
+        {% for s in staff_list %}
+        <tr>
+          <td>
+            <div class="approval-person">
+              <div class="avatar avatar-sm">{{ s.initials }}</div>
+              <div><div class="cell-title">{{ s.full_name }}</div><div class="cell-sub">@{{ s.username }}</div></div>
+            </div>
+          </td>
+          <td><div class="cell-sub">{{ s.email }}</div><div class="cell-sub">{{ s.phone or '—' }}</div></td>
+          <td><span class="count-chip">{{ s.assigned_treks.count() }} treks</span></td>
+          <td>
+            {% set map = {'pending':'badge-status-closed','approved':'badge-status-open','rejected':'badge-status-cancelled','blacklisted':'badge-status-cancelled'} %}
+            <span class="pill {{ map.get(s.status, 'badge-status-draft') }}">{{ s.status|capitalize }}</span>
+          </td>
+          <td class="text-end">
+            <form method="post" action="{{ url_for('admin.staff_action', staff_id=s.id) }}" class="row-actions justify-content-end">
+              {% if s.status == 'pending' %}
+                <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                <button name="action" value="reject" class="btn btn-outline-danger btn-sm">Reject</button>
+              {% elif s.status == 'approved' %}
+                <button name="action" value="blacklist" class="btn btn-outline-danger btn-sm" data-confirm="Blacklist {{ s.full_name }}?">Blacklist</button>
+              {% else %}
+                <button name="action" value="reinstate" class="btn btn-outline-success btn-sm">Reinstate</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    {{ empty_state('bi-person-x', 'No staff found', 'No staff accounts match your search.') }}
+  {% endif %}
+</div>
+{% endblock %}

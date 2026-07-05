@@ -1,0 +1,42 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import trek_card, empty_state %}
+{% block title %}Explore Treks{% endblock %}
+{% block page_title %}Explore Treks{% endblock %}
+{% block page_subtitle %}Find and book your next expedition.{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "user/_sidebar.html" %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="panel">
+  <form class="filter-bar filter-bar-wrap" method="get" action="{{ url_for('user.treks') }}">
+    <div class="input-icon flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Search treks...">
+    </div>
+    <div class="input-icon">
+      <i class="bi bi-geo-alt"></i>
+      <input class="form-control" type="text" name="location" value="{{ location }}" placeholder="Location">
+    </div>
+    <select class="form-select filter-select" name="difficulty">
+      <option value="">All difficulties</option>
+      {% for d in difficulties %}<option value="{{ d }}" {{ 'selected' if difficulty == d }}>{{ d }}</option>{% endfor %}
+    </select>
+    <input class="form-control filter-select" type="date" name="start_date" value="{{ start_date }}">
+    <button class="btn btn-brand" type="submit"><i class="bi bi-funnel"></i> Filter</button>
+    {% if keyword or location or difficulty or start_date %}
+      <a class="btn btn-ghost" href="{{ url_for('user.treks') }}">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if treks %}
+<div class="grid-cards mt-4">
+  {% for t in treks %}
+    {{ trek_card(t, url_for('user.trek_detail', trek_id=t.id), booked=(t.id in booked_ids)) }}
+  {% endfor %}
+</div>
+{% include "partials/pagination.html" %}
+{% else %}
+  {{ empty_state('bi-compass', 'No treks found', 'No open treks match your filters. Try broadening your search.', url_for('user.treks'), 'Reset filters') }}
+{% endif %}
+{% endblock %}

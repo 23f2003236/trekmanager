@@ -1,0 +1,67 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import stat_card, trek_card, empty_state %}
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}Hi, {{ current_user.full_name.split()[0] }} 👋{% endblock %}
+{% block page_subtitle %}Your adventures, all in one place.{% endblock %}
+{% set active = 'dashboard' %}
+{% block sidebar_nav %}{% include "user/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-brand btn-sm" href="{{ url_for('user.treks') }}"><i class="bi bi-compass"></i> Explore</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="stat-grid">
+  {{ stat_card('Upcoming', stats.upcoming, 'bi-calendar-event', 'primary') }}
+  {{ stat_card('Completed', stats.completed, 'bi-flag', 'emerald') }}
+  {{ stat_card('Total Bookings', stats.total, 'bi-journal-check', 'sky') }}
+  {{ stat_card('Cancelled', stats.cancelled, 'bi-x-circle', 'rose') }}
+</div>
+
+<!-- Upcoming bookings -->
+<div class="panel mt-4">
+  <div class="panel-head">
+    <h3><i class="bi bi-calendar-event"></i> Your upcoming treks</h3>
+    <a class="panel-link" href="{{ url_for('user.bookings') }}">All bookings <i class="bi bi-arrow-right"></i></a>
+  </div>
+  {% if upcoming %}
+  <div class="row g-3">
+    {% for b in upcoming %}
+    <div class="col-md-6">
+      <div class="booking-tile">
+        <span class="booking-thumb" style="background-image:url('{{ url_for('static', filename='images/' ~ b.trek.image_url) }}')"></span>
+        <div class="booking-tile-body">
+          <div class="cell-title">{{ b.trek.name }}</div>
+          <div class="cell-sub"><i class="bi bi-geo-alt"></i> {{ b.trek.location }}</div>
+          <div class="cell-sub"><i class="bi bi-calendar3"></i> {{ b.trek.start_date|date_pretty }}</div>
+          <div class="mt-2 d-flex gap-2 align-items-center">
+            <span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span>
+            <a class="btn btn-soft btn-sm" href="{{ url_for('user.trek_detail', trek_id=b.trek.id) }}">Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    {{ empty_state('bi-calendar-x', 'No upcoming treks', 'You have no upcoming adventures. Time to find your next one!', url_for('user.treks'), 'Explore Treks') }}
+  {% endif %}
+</div>
+
+<!-- Recommended -->
+<div class="panel mt-4">
+  <div class="panel-head">
+    <h3><i class="bi bi-stars"></i> Recommended for you</h3>
+    <a class="panel-link" href="{{ url_for('user.treks') }}">See more <i class="bi bi-arrow-right"></i></a>
+  </div>
+  {% if recommended %}
+  <div class="grid-cards">
+    {% for t in recommended %}
+      {{ trek_card(t, url_for('user.trek_detail', trek_id=t.id)) }}
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-inline"><i class="bi bi-signpost"></i> No open treks right now. Check back soon!</div>
+  {% endif %}
+</div>
+{% endblock %}

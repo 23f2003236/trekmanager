@@ -1,0 +1,76 @@
+{% extends "partials/dashboard_layout.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% block title %}{{ trek.name }}{% endblock %}
+{% block page_title %}{{ trek.name }}{% endblock %}
+{% block page_subtitle %}{{ trek.location }}{% endblock %}
+{% set active = 'treks' %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-ghost btn-sm" href="{{ url_for('admin.treks') }}"><i class="bi bi-arrow-left"></i> Back</a>
+<a class="btn btn-brand btn-sm" href="{{ url_for('admin.trek_edit', trek_id=trek.id) }}"><i class="bi bi-pencil"></i> Edit</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="detail-hero" style="background-image:linear-gradient(180deg, rgba(15,23,42,.1), rgba(15,23,42,.75)), url('{{ url_for('static', filename='images/' ~ trek.image_url) }}')">
+      <div class="detail-hero-top">
+        <span class="pill {{ trek.difficulty_class }}">{{ trek.difficulty }}</span>
+        <span class="pill {{ trek.status_class }}">{{ trek.status|capitalize }}</span>
+      </div>
+      <div class="detail-hero-price">{{ trek.price|currency }}</div>
+    </div>
+    <div class="panel mt-3">
+      <h3 class="panel-mini-title">Details</h3>
+      <ul class="kv-list">
+        <li><span><i class="bi bi-geo-alt"></i> Location</span><strong>{{ trek.location }}</strong></li>
+        <li><span><i class="bi bi-calendar3"></i> Start</span><strong>{{ trek.start_date|date_pretty }}</strong></li>
+        <li><span><i class="bi bi-calendar-check"></i> End</span><strong>{{ trek.end_date|date_pretty }}</strong></li>
+        <li><span><i class="bi bi-clock"></i> Duration</span><strong>{{ trek.duration }} days</strong></li>
+        <li><span><i class="bi bi-people"></i> Capacity</span><strong>{{ trek.booked_slots }}/{{ trek.slots }} booked</strong></li>
+        <li><span><i class="bi bi-person-vcard"></i> Guide</span><strong>{{ trek.staff.full_name if trek.staff else 'Unassigned' }}</strong></li>
+      </ul>
+      <div class="mt-3">
+        <div class="d-flex justify-content-between mb-1"><span class="slots-label">Occupancy</span><span class="slots-pct">{{ trek.fill_percent }}%</span></div>
+        <div class="progress trek-progress"><div class="progress-bar" style="width:{{ trek.fill_percent }}%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="panel">
+      <h3 class="panel-mini-title">About this trek</h3>
+      <p class="detail-desc">{{ trek.description or 'No description provided.' }}</p>
+    </div>
+
+    <div class="panel mt-3">
+      <div class="panel-head"><h3><i class="bi bi-people"></i> Participants ({{ bookings|length }})</h3></div>
+      {% if bookings %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Trekker</th><th>Booked on</th><th>Payment</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td>
+                <div class="approval-person">
+                  <div class="avatar avatar-sm">{{ b.user.initials }}</div>
+                  <div><div class="cell-title">{{ b.user.full_name }}</div><div class="cell-sub">{{ b.user.email }}</div></div>
+                </div>
+              </td>
+              <td>{{ b.booking_date|date_pretty }}</td>
+              <td><span class="pill {{ b.payment_class }}">{{ b.payment_status|capitalize }}</span></td>
+              <td><span class="pill {{ b.status_class }}">{{ b.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-inline"><i class="bi bi-person-x"></i> No participants have booked yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
