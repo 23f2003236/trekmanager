@@ -301,6 +301,12 @@ trekmanager/
 ## 📸 Screenshots
 
 > Add screenshots of the running application here. Suggested captures:
+> <img width="1847" height="995" alt="image" src="https://github.com/user-attachments/assets/3e5fd6cc-2991-4a8b-a935-a387042dcd33" />
+<img width="1847" height="989" alt="image" src="https://github.com/user-attachments/assets/303dee8b-b29c-430f-8da3-5827eccdab62" />
+<img width="1845" height="989" alt="image" src="https://github.com/user-attachments/assets/916d26ea-93e7-4ce2-9c5a-6efecf95476b" />
+
+
+
 
 
 | Page                | Description                                             |
@@ -316,9 +322,6 @@ trekmanager/
 
 _To add a screenshot, save the image inside `app/static/images/` (e.g. `screenshot-dashboard.png`) and embed it:_
 
-```markdown
-![Admin Dashboard](app/static/images/screenshot-dashboard.png)
-```
 
 ---
 
